@@ -5,5 +5,6 @@
   "documentation": "https://github.com/chaosl1996/custom_calendar_events",
   "codeowners": ["@chaosl1996"],
   "requirements": [],
+  "dependencies": [],
   "iot_class": "local_polling"
 }
