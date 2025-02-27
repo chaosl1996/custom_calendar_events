@@ -1,29 +1,16 @@
-from homeassistant import config_entries, core
-from homeassistant.helpers import config_entry_flow
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.typing import ConfigType
 
-# 处理配置入口
-class MyCalendarIntegrationConfigFlow(config_entries.ConfigFlow, domain="my_calendar_integration"):
-    VERSION = 1
+DOMAIN = "recent_calendar_events"
 
-    async def async_step_user(self, user_input=None):
-        # 获取已存在的日历列表
-        calendars = self.hass.data["calendar"].get_calendars()
+async def async_setup_entry(hass: HomeAssistant, config_entry):
+    """通过配置条目初始化传感器"""
+    hass.async_create_task(
+        hass.config_entries.async_forward_entry_setup(config_entry, "sensor")
+    )
+    return True
 
-        if user_input is None:
-            return self.async_show_form(step_id="user", data_schema=vol.Schema({
-                vol.Required("calendar"): vol.In(calendars),
-                vol.Required("event_count", default=1): vol.Coerce(int),
-            }))
-
-        # 处理用户输入
-        calendar = user_input["calendar"]
-        event_count = user_input["event_count"]
-
-        # 基于选择的日历和事件数量创建实体
-        await self._create_events(calendar, event_count)
-
-        return self.async_create_entry(title="My Calendar Integration", data=user_input)
-
-    async def _create_events(self, calendar, event_count):
-        # 在这里实现从日历中获取事件并创建实体的逻辑
-        # 这部分代码可以根据 Home Assistant 日历 API 来实现
+async def async_unload_entry(hass: HomeAssistant, config_entry):
+    """卸载集成"""
+    await hass.config_entries.async_forward_entry_unload(config_entry, "sensor")
+    return True
